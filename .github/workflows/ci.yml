@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # 只列 main 会让实际使用 master 的仓库永远收不到 CI 结果——推送成功但
+    # 一个检查都没跑，比没有 CI 更糟：它看起来是被验证过的。
+    branches: [main, master]
   pull_request:
 
 env:

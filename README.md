@@ -409,6 +409,10 @@ proofforge simplify --target . --yes      # 看过报告后才应用
 - **人类工程师拥有最终控制权** —— 默认不修改原始工程代码。
 - **可审计与可复现** —— 结论可追溯到代码版本、规则集与执行日志。
 
+## 许可证
+
+[Apache License 2.0](LICENSE)。各 crate 的 `license` 字段与之一致。
+
 ## 贡献
 
 请先阅读 [`AGENTS.md`](AGENTS.md)：其中规定了编码与注释规范、测试要求、
