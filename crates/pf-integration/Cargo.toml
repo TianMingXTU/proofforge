@@ -1,0 +1,22 @@
+[package]
+name = "pf-integration"
+description = "ProofForge 跨 crate 集成测试"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+pf-report = { path = "../pf-report" }
+pf-review = { path = "../pf-review" }
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

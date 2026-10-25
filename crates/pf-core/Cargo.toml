@@ -1,0 +1,22 @@
+[package]
+name = "pf-core"
+description = "ProofForge 核心领域模型：标识符、定位、发现、证据与门禁结论"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+sha2.workspace = true
+hex.workspace = true
+toml = "0.8"
+ulid = "1"

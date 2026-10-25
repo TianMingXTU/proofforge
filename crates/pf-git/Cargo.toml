@@ -1,0 +1,23 @@
+[package]
+name = "pf-git"
+description = "Git 仓库读取：快照、差异与变更分析（复用 gix，不重新实现 Git）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core", features = [] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+gix.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

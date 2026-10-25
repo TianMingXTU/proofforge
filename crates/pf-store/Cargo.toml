@@ -1,0 +1,21 @@
+[package]
+name = "pf-store"
+description = "本地结果存储（SQLite）与证据落库"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+serde_json.workspace = true
+thiserror = "2"
+sqlx.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

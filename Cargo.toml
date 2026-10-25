@@ -1,0 +1,101 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/pf-core",
+    "crates/pf-git",
+    "crates/pf-parser",
+    "crates/pf-symbol",
+    "crates/pf-graph",
+    "crates/pf-rules",
+    "crates/pf-review",
+    "crates/pf-simplify",
+    "crates/pf-report",
+    "crates/pf-store",
+    "crates/pf-verify",
+    "crates/pf-agent",
+    "crates/pf-cli",
+    "crates/pf-integration",
+    "adapters",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.99"
+license = "Apache-2.0"
+repository = "https://github.com/qinhuijian/ProofForge"
+authors = ["ProofForge contributors"]
+
+[workspace.dependencies]
+# --- 内部 crate ---
+pf-core = { path = "crates/pf-core" }
+pf-git = { path = "crates/pf-git" }
+pf-parser = { path = "crates/pf-parser" }
+pf-symbol = { path = "crates/pf-symbol" }
+pf-graph = { path = "crates/pf-graph" }
+pf-rules = { path = "crates/pf-rules" }
+pf-review = { path = "crates/pf-review" }
+pf-simplify = { path = "crates/pf-simplify" }
+pf-report = { path = "crates/pf-report" }
+pf-store = { path = "crates/pf-store" }
+pf-verify = { path = "crates/pf-verify" }
+pf-agent = { path = "crates/pf-agent" }
+pf-adapters = { path = "adapters" }
+
+# --- 基础能力 ---
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+toml = "0.8"
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# --- 异步与 CLI ---
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4", features = ["derive", "env"] }
+
+# --- 代码解析与图分析 ---
+tree-sitter = "0.25"
+tree-sitter-rust = "0.24"
+tree-sitter-python = "0.25"
+tree-sitter-language = "0.1"
+petgraph = "0.8"
+
+# --- Git 与检索 ---
+gix = { version = "0.72", default-features = false, features = ["max-performance", "blob-diff", "revision"] }
+ignore = "0.4"
+
+# --- 存储 ---
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+
+# --- 摘要与哈希 ---
+sha2 = "0.10"
+hex = "0.4"
+
+# 仓库级 lint 基线：各 crate 通过 `[lints] workspace = true` 继承。
+# 目标接近 Google Rust Style Guide 的可读性与安全性要求，同时保持
+# 开发期可用（不把 warning 升级为 deny，避免阻塞增量开发）。
+[workspace.lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+unused_qualifications = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# 与项目风格冲突或噪音过大的项，显式关闭并说明原因。
+module_name_repetitions = "allow"  # pf_core::xxx::Xxx 的重复模块名在该项目中是惯用写法。
+must_use_candidate = "allow"       # 内部领域模型不需要在每个 getter 上加 #[must_use]。
+missing_errors_doc = "allow"       # 文档注释不强制列出错误条件，错误类型本身已表达。
+missing_panics_doc = "allow"       # 领域模型几乎不含可触发 panic 的公开 API。
+needless_pass_by_value = "allow"   # 小尺寸领域类型按值传递更简洁。
+items_after_statements = "allow"   # 允许在语句后定义局部辅助项。
+format_push_string = "allow"       # 报告渲染每轮只跑一次，多一次分配换可读性是划算的。
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

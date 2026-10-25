@@ -1,0 +1,29 @@
+[package]
+name = "pf-simplify"
+description = "保留行为的代码简化：候选生成、隔离补丁、回归与行为比较、人工确认后应用"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+pf-core = { workspace = true }
+pf-adapters = { workspace = true }
+pf-graph = { workspace = true }
+pf-review = { workspace = true }
+pf-rules = { workspace = true }
+pf-symbol = { workspace = true }
+pf-verify = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = "3"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = "1"
+
+[lints]
+workspace = true

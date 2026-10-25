@@ -1,0 +1,27 @@
+# ProofForge 对自己的规则豁免（FR-062）。
+#
+# 本仓库的 `fixtures/over-engineered` 里**故意植入**了已知问题，用来守护
+# `inspect` 的检测行为（见 fixtures/README.md）。它们是测试样本，不是待修的
+# 缺陷，因此在这里豁免，并写清理由与批准人。
+#
+# 用法：
+#   proofforge inspect . --config configs/proofforge.toml
+#   proofforge rules exemptions exemptions.toml
+#
+# 豁免不删除发现：它们仍在报告、JSON、SARIF 与 HTML 里，只是不再计入门禁。
+# 因此「fixtures 里有多少条 missing-docs」这件事始终可审计。
+#
+# 只豁免到**文件**范围，不按规则整条豁免：规则本身没有问题，有问题的只是这些
+# 被植入的位置。真实代码里新出现的 missing-docs 不会被这里压掉。
+
+[[exemptions]]
+rule_id = "builtin.public-api-missing-docs"
+scope = { kind = "file", path = "fixtures/over-engineered/src/lib.rs" }
+reason = "植入的测试样本：该文件故意不给公共 API 写文档，用于守护 FR-014 的检测（见 fixtures/README.md）"
+granted_by = "maintainers"
+
+[[exemptions]]
+rule_id = "builtin.public-api-missing-docs"
+scope = { kind = "file", path = "fixtures/over-engineered/src/boilerplate.rs" }
+reason = "植入的测试样本：该文件故意不给公共 API 写文档，用于守护 FR-014 的检测（见 fixtures/README.md）"
+granted_by = "maintainers"

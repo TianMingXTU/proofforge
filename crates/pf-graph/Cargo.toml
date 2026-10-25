@@ -1,0 +1,19 @@
+[package]
+name = "pf-graph"
+description = "依赖图与调用图分析（复用 petgraph 的图算法）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+pf-symbol = { path = "../pf-symbol" }
+serde.workspace = true
+tracing.workspace = true
+petgraph.workspace = true

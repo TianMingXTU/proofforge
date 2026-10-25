@@ -1,0 +1,9 @@
+[package]
+name = "mutable-fixture"
+version = "0.1.0"
+edition = "2021"
+
+# 这个包只作为 ProofForge 的测试夹具存在，不参与 workspace 构建：
+# 它故意让一部分行为有测试守护、另一部分没有，供 `proofforge mutate` 观察
+# 「已杀死 / 幸存」两类结论。
+[workspace]

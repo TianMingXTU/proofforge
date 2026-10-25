@@ -1,0 +1,31 @@
+{
+  "language": "rust",
+  "imports": ["verifiable_fixture"],
+  "samples": 16,
+  "seed": 1,
+  "relations": [
+    {
+      "name": "翻倍与输入符号无关（干净路径）",
+      "call_template": "verifiable_fixture::double({args})",
+      "domain": { "kind": "int", "min": -500, "max": 500 },
+      "transform": "-{input}",
+      "relation": "output_a == -output_b"
+    },
+    {
+      "name": "加法满足交换律（干净路径）",
+      "call_template": "verifiable_fixture::add({args})",
+      "domain": { "kind": "tuple", "fields": [
+          { "kind": "int", "min": -250, "max": 250 },
+          { "kind": "int", "min": -250, "max": 250 } ] },
+      "transform": "{input}.1, {input}.0",
+      "relation": "output_a == output_b"
+    },
+    {
+      "name": "parse 的平移量恒为 1（已知缺陷：非正输入 panic）",
+      "call_template": "verifiable_fixture::parse({args})",
+      "domain": { "kind": "int", "min": -40, "max": 40 },
+      "transform": "{input} + 1",
+      "relation": "output_b - output_a == 1"
+    }
+  ]
+}

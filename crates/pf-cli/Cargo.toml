@@ -1,0 +1,36 @@
+[package]
+name = "pf-cli"
+description = "ProofForge 命令行入口：inspect / verify / simplify / agent / rules / report"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "proofforge"
+path = "src/main.rs"
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+pf-rules = { path = "../pf-rules" }
+pf-report = { path = "../pf-report" }
+pf-review = { path = "../pf-review" }
+pf-store = { path = "../pf-store" }
+pf-verify = { path = "../pf-verify" }
+pf-simplify = { path = "../pf-simplify" }
+pf-agent = { path = "../pf-agent" }
+clap.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+tempfile = "3"

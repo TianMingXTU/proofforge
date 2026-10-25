@@ -1,0 +1,21 @@
+# ProofForge 代码格式配置。
+#
+# 目标：接近 Google Rust Style Guide 的排版结果。
+#   - 行宽 100（Google 规范值，也是 rustfmt 默认值，这里显式声明以免
+#     未来默认值变化影响全仓库 diff）。
+#   - 使用 Rust 2021 版的 import 分组与排序。
+#   - 链式调用在超过行宽时才换行，避免为短链制造噪音。
+edition = "2021"
+max_width = 100
+hard_tabs = false
+tab_spaces = 4
+newline_style = "Unix"
+use_small_heuristics = "Default"
+reorder_imports = true
+reorder_modules = true
+remove_nested_parens = true
+match_arm_leading_pipes = "Never"
+use_field_init_shorthand = true
+use_try_shorthand = true
+fn_params_layout = "Tall"
+merge_derives = true

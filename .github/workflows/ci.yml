@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace --all-features
+
+  # ProofForge 必须接受 ProofForge 的工程质量要求（需求文档 11.3）。
+  self-review:
+    name: self-review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build proofforge
+        run: cargo build -p pf-cli
+      - name: Inspect this repository
+        # 用仓库自己的配置：导入 AGENTS.md 作为项目规范，并加载 exemptions.toml
+        # 对 fixtures/ 里植入的样本做豁免（FR-062）。
+        run: ./target/debug/proofforge inspect . --config configs/proofforge.toml --format json --output self-review.json
+
+      # 门禁必须是 passed：insufficient_evidence 说明分析没跑完，
+      # failed 说明仓库里有已确认的阻断级问题。二者都不该出现在 main 上。
+      #
+      # fixtures/over-engineered 里的问题是故意植入的测试样本，由
+      # exemptions.toml 豁免（见 fixtures/README.md 与该文件自身的注释）。
+      # 豁免不删除发现，因此这里仍然把它们单独统计出来：豁免数悄悄上涨
+      # 说明有人在压问题，那个数字必须是显眼的。
+      - name: Assert the self-review gate passed
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          with open("self-review.json", encoding="utf-8") as handle:
+              report = json.load(handle)
+          gate = report["gate"]
+          if gate != "passed":
+              print(f"::error::ProofForge self-review gate is {gate!r}, expected 'passed'")
+              sys.exit(1)
+          findings = report["findings"]
+          def path(f):
+              locations = f.get("locations") or []
+              return (locations[0].get("path") if locations else None) or ""
+          seeded = sum(path(f).startswith("fixtures/") for f in findings)
+          stray = [
+              f["rule_id"] for f in findings if f.get("exempted") and not path(f).startswith("fixtures/")
+          ]
+          print(f"self-review gate: {gate}")
+          print(f"  findings: {len(findings)} ({seeded} in fixtures/, {len(findings) - seeded} in real code)")
+          print(f"  exempted: {sum(1 for f in findings if f.get('exempted'))}")
+          # 豁免只允许覆盖 fixtures/ 里植入的样本。真实代码里出现被豁免的发现，
+          # 说明有人在 exemptions.toml 里压问题——那必须在评审里被看见。
+          if stray:
+              print(f"::error::exempted findings outside fixtures/: {sorted(set(stray))}")
+              sys.exit(1)
+          PY
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: self-review
+          path: self-review.json
+
+  # 阶段三：行为验证必须真的能跑起来，并且真的能复现植入的缺陷。
+  # 断言退出码而不是 grep 输出——退出码就是门禁结论本身。
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build proofforge
+        run: cargo build -p pf-cli
+      - name: Verify the seeded fixture
+        # fixtures/verifiable 植入了一条可复现缺陷（parse 对非正输入 panic），
+        # 另有一条干净性质。两者都要出现：只有缺陷说明干净路径坏了，
+        # 只有干净说明复现路径坏了。
+        run: |
+          set +e
+          # --format json 必须显式给出：--output 只决定写到哪里，格式仍由
+          # --format 决定。缺了它，verify.json 里会是终端文本，下面的断言
+          # 会以 JSONDecodeError 收场——那是一次难看的失败，而不是结论。
+          ./target/debug/proofforge verify \
+            --target fixtures/verifiable \
+            --properties fixtures/verifiable/properties.json \
+            --format json \
+            --output verify.json
+          code=$?
+          set -e
+          python3 - "$code" <<'PY'
+          import json, sys
+          code = int(sys.argv[1])
+          with open("verify.json", encoding="utf-8") as handle:
+              report = json.load(handle)
+          if code != 1:
+              print(f"::error::expected exit 1 (a reproduced defect), got {code}")
+              sys.exit(1)
+          verdicts = {p["name"]: p["verdict"] for p in report["properties"]}
+          if verdicts.get("parse 不 panic（已知缺陷）") != "violated":
+              print(f"::error::seeded defect was not reproduced: {verdicts}")
+              sys.exit(1)
+          if verdicts.get("double 恒为偶数（干净路径）") != "not_violated":
+              print(f"::error::clean property was not satisfied: {verdicts}")
+              sys.exit(1)
+          print(f"verify gate: {report['gate']} (exit {code})")
+          for name, verdict in verdicts.items():
+              print(f"  {name}: {verdict}")
+          PY
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify
+          path: verify.json

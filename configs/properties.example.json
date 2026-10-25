@@ -1,0 +1,33 @@
+{
+  "language": "rust",
+  "imports": ["mycrate"],
+  "samples": 24,
+  "seed": 1,
+  "properties": [
+    {
+      "name": "解析结果非负",
+      "call_template": "mycrate::parse({args})",
+      "domain": { "kind": "int", "min": -1000, "max": 1000 },
+      "invariant": "output >= 0"
+    },
+    {
+      "name": "归一化是幂等的",
+      "call_template": "mycrate::normalize({args})",
+      "domain": { "kind": "str", "max_len": 64 },
+      "invariant": "mycrate::normalize(output.as_str()) == output"
+    },
+    {
+      "name": "批量接口与单条接口一致",
+      "call_template": "mycrate::blend({args})",
+      "domain": {
+        "kind": "tuple",
+        "fields": [
+          { "kind": "int", "min": -64, "max": 64 },
+          { "kind": "int", "min": -64, "max": 64 }
+        ]
+      },
+      "invariant": "output.0.abs() <= 64 && output.1.abs() <= 64",
+      "samples": 64
+    }
+  ]
+}

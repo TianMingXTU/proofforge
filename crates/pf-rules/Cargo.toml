@@ -1,0 +1,25 @@
+[package]
+name = "pf-rules"
+description = "工程质量规则引擎与内置规则集"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+pf-symbol = { path = "../pf-symbol" }
+pf-graph = { path = "../pf-graph" }
+pf-parser = { path = "../pf-parser" }
+serde.workspace = true
+serde_yaml.workspace = true
+toml.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+tree-sitter.workspace = true

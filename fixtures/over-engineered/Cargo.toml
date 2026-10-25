@@ -1,0 +1,8 @@
+[package]
+name = "over-engineered-fixture"
+version = "0.1.0"
+edition = "2021"
+
+# 这个包只作为 ProofForge 的测试夹具存在，不参与 workspace 构建：
+# 它故意包含已知的工程质量问题，编译警告与 lint 结果都是预期内容。
+[workspace]

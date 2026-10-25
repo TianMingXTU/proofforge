@@ -1,0 +1,22 @@
+[package]
+name = "pf-parser"
+description = "多语言语法解析（复用 Tree-sitter grammar，不重新实现解析器）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+pf-core = { path = "../pf-core" }
+serde.workspace = true
+thiserror = "2"
+tracing.workspace = true
+tree-sitter.workspace = true
+tree-sitter-rust.workspace = true
+tree-sitter-python.workspace = true
+tree-sitter-language.workspace = true

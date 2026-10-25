@@ -1,0 +1,50 @@
+# ProofForge 规则豁免示例（FR-062）。
+#
+# 加载方式：
+#   proofforge inspect . --exemption exemptions.toml
+# 或在 `proofforge.toml` 里写 `exemption_files = ["exemptions.toml"]`
+# （相对路径按被审查项目的根目录解析）。
+#
+# 一条豁免必须带什么，以及为什么：
+#   - reason      不可省略。说不清理由的豁免只是把发现藏起来，解析时直接报错。
+#   - granted_by  不可省略。豁免必须可归属到人，否则审计时查不到是谁放的
+#                 （FR-070）。
+#   - expires_on  可省略。省略表示长期有效；写了就必须在到期前复审——过期豁免
+#                 会自动失效，并在报告的警告里说明，不会静默继续压制问题。
+#
+# 豁免**不删除发现**。它只把发现的呈现改成「已豁免」并附上理由与批准人，
+# 发现本身仍在报告里，只是不再计入门禁。这样「我们到底压掉了多少问题」
+# 始终可审计。
+
+# --- 整条规则在所有位置生效 ---
+# 适合「这条规则我们整体上不采纳」的情况，例如团队决定不用 Rust 命名惯例。
+[[exemptions]]
+rule_id = "builtin.naming-convention"
+scope = { kind = "rule" }
+reason = "本项目的公共 API 名沿用上游 C 库的拼写，重命名会破坏二进制兼容"
+granted_by = "alice"
+expires_on = "2027-01-01"
+
+# --- 只在指定文件内生效 ---
+# 适合「这一个文件是特例」：生成的绑定代码、外部协议的结构体镜像。
+[[exemptions]]
+rule_id = "builtin.public-api-missing-docs"
+scope = { kind = "file", path = "src/protocol/bindings.rs" }
+reason = "该文件由 protobuf 生成，文档应由 .proto 源文件提供"
+granted_by = "ci-codegen"
+
+# --- 只在指定行范围内生效 ---
+# 范围最小、最安全的写法：只压掉那一处，别的地方照旧报告。
+[[exemptions]]
+rule_id = "builtin.single-implementation-trait"
+scope = { kind = "lines", path = "src/store.rs", start_line = 40, end_line = 96 }
+reason = "这一层是测试替身，真实实现里会有第二个 impl；见 issue #1234"
+granted_by = "bob"
+
+# --- YAML 写法等价 ---
+# exemptions:
+#   - rule_id: builtin.duplicate-code
+#     scope:
+#       kind: rule
+#     reason: 两份实现对拍用的镜像代码，合并会让对拍失去意义
+#     granted_by: carol

@@ -1,0 +1,68 @@
+# ProofForge 示例配置。
+#
+# 由 `proofforge init` 生成。所有字段都有默认值，因此空文件同样合法。
+# 优先级：CLI 参数 > 本文件 > 内置默认值（`inspect --config` 读取）。
+#
+# 文件里的相对路径按**本配置文件所在目录**解析，因此放在 configs/ 下时
+# `target = ".."` 指向仓库根。rule_files 与 exemption_files 例外：它们按目标
+# 根目录解析，因为规范与豁免是跟着项目走的决策。
+
+# 被分析的项目根目录（相对本配置文件所在目录）。
+target = ".."
+
+# 审查指定 Git 引用而不是工作区；None 表示工作区。
+# revision = "HEAD"
+
+# 只审查相对该引用的变更文件；None 表示全量。
+# baseline = "main"
+
+# 启用的语言；空数组表示分析所有识别到的语言。
+languages = ["rust", "python"]
+
+# 阻断合并的最低严重程度：blocker | high | medium | low | info
+block_on = "high"
+
+# 报告格式：terminal | json | sarif | html
+report_format = "terminal"
+
+# 报告输出路径；省略时写入标准输出。
+# report_path = "proofforge-report.html"
+
+# 额外规则集文件（AGENTS.md / CLAUDE.md / Markdown / YAML / TOML），相对目标根目录。
+# Markdown 导入的规范全部登记为「人工审查项」，不参与自动执行。
+rule_files = ["AGENTS.md"]
+
+# 豁免文件（TOML 或 YAML），相对项目根目录。
+# 豁免只把发现标记为「已豁免」并附上理由与批准人，不删除发现（FR-062）。
+exemption_files = ["exemptions.toml"]
+
+# 架构依赖规则（FR-024）。空表示不检查依赖方向——工具不替项目预设分层。
+# 模式是路径通配符：`**` 跨目录（crates/pf-report/** 覆盖 src/lib.rs），
+# `*` 不跨目录（src/*.rs 不覆盖 src/a/b.rs）。
+#
+# 注意 `pf-rules` 只解析 `crate::` 前缀的内部引用，因此规则要写到文件粒度才生效。
+# [[architecture_rules]]
+# name = "报告层不得依赖规则层"
+# from = "crates/pf-report/**"
+# to = "crates/pf-rules/**"
+# mode = "forbidden"        # forbidden：禁止这条边；allowed：只允许这条边
+# reason = "报告只消费 pf-core 的领域模型，规则结论应当由编排层组装"
+
+[budget]
+# 单个外部命令的最长执行时间（秒）。
+command_timeout_secs = 300
+
+# 整个任务的最长执行时间（秒）。
+task_timeout_secs = 3600
+
+# 最多索引的文件数，防止超大仓库拖垮分析。
+max_files = 20000
+
+# 单文件最大字节数。
+max_file_bytes = 2097152
+
+# 允许的并发外部进程数。
+parallelism = 4
+
+# LLM Token 上限；None 表示不调用模型（当前版本不调用）。
+max_tokens = 0

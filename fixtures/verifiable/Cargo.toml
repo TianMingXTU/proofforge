@@ -1,0 +1,7 @@
+[package]
+name = "verifiable-fixture"
+version = "0.1.0"
+edition = "2021"
+
+# 只作为 ProofForge 的测试夹具存在，不参与 workspace 构建。
+[workspace]
